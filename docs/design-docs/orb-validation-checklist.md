@@ -36,7 +36,7 @@ Execucao: `orb-agent --backtest --all` com `ORB_BACKTEST_CANDLE_LIMIT=2000`.
 
 | # | Criterio | OK |
 |---|----------|-----|
-| 10 | Paper trading >= 14 dias | [ ] |
+| 10 | Paper trading >= 14 dias | [~] iniciado 2026-07-09 · scan 15 min Seg-Sex 08–17h |
 | 11 | Webhooks n8n testados (`scripts/test-webhook.py`) | [ ] (webhook desativado) |
 | 12 | `scripts/verify-system.py` sem erros | [x] |
 | 13 | Live gate duplo configurado | [x] (codigo + `.env`; modo live nao ativo) |
@@ -45,7 +45,7 @@ Execucao: `orb-agent --backtest --all` com `ORB_BACKTEST_CANDLE_LIMIT=2000`.
 
 | Fase | Status |
 |------|--------|
-| Paper trading | **Aprovado** — KPIs globais 6–8 cumpridos |
+| Paper trading | **Em curso** desde 2026-07-09 (meta: 14 dias) |
 | Live | **Bloqueado** — item 9 (core KPI), paper 14d, webhooks |
 
 ## Assinaturas
