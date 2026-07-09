@@ -7,4 +7,6 @@
 - [x] Testes unitarios e tool
 - [x] Modo analysis default
 - [x] Dados CCXT (stub/ccxt/auto) + pairs registry
-- [ ] Pipeline completo com trade params (Fase 3)
+- [x] Pipeline completo: deteccao -> trade -> risco -> explicacao
+- [x] calculate_trade_params com sizing e validacao R:R
+- [ ] Backtest walk-forward (Fase 4)

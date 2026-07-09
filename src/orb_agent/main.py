@@ -19,8 +19,11 @@ def main():
         print(json.dumps(results if args.all else results[0], indent=2, default=str))
     elif args.all:
         for item in results:
-            det = item.get("detection", {})
-            status = "SETUP" if det.get("found") else det.get("reason", "sem setup")
+            if item.get("found"):
+                tp = item.get("trade_params") or {}
+                status = f"SETUP R:R 1:{tp.get('risk_reward', '?')}"
+            else:
+                status = item.get("reason", "sem setup")
             print(f"{item['pair']}: {status}")
     else:
         print(results[0])

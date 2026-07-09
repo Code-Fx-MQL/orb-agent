@@ -1,6 +1,13 @@
+from __future__ import annotations
+
+from typing import Any
+
 from orb_agent.config.settings import settings
 from orb_agent.tools.data import fetch_multi_tf_data
+from orb_agent.tools.explain import explain_setup_detalhado
 from orb_agent.tools.orb import detect_orb_setup
+from orb_agent.tools.risk import check_risk_limits
+from orb_agent.tools.trade import calculate_trade_params, identify_confluences
 
 
 def _candles_for_tf(data: dict, timeframe: str) -> list:
@@ -8,9 +15,11 @@ def _candles_for_tf(data: dict, timeframe: str) -> list:
     return list(tfs.get(timeframe) or [])
 
 
-def run_pair_analysis(pair: str) -> dict:
+def run_pair_analysis(pair: str) -> dict[str, Any]:
+    """Pipeline ORB: dados -> deteccao -> confluencias -> trade -> risco -> explicacao."""
     pair = pair.upper()
     tfs = [settings.default_htf, settings.default_mtf, settings.default_ltf]
+
     data = fetch_multi_tf_data.invoke({
         "pair": pair,
         "timeframes": tfs,
@@ -30,9 +39,59 @@ def run_pair_analysis(pair: str) -> dict:
         "mtf_timeframe": settings.default_mtf,
         "ltf_timeframe": settings.default_ltf,
     })
-    return {
+
+    result: dict[str, Any] = {
         "pair": pair,
         "mode": settings.mode.value,
         "data_source": data.get("source"),
+        "exchange": data.get("exchange"),
+        "found": detection.get("found", False),
+        "reason": detection.get("reason"),
+        "setup": None,
+        "confluences": None,
+        "trade_params": None,
+        "risk_check": None,
+        "explanation": None,
         "detection": detection,
     }
+
+    if not detection.get("found"):
+        result["explanation"] = f"Analise {pair}: {detection.get('reason', 'sem setup')}"
+        return result
+
+    setup = detection["setup"]
+    conf = identify_confluences.invoke({"setup": setup})
+    result["confluences"] = conf
+
+    trade = calculate_trade_params.invoke({"setup": setup})
+    if not trade.get("valid", True):
+        result.update({
+            "setup": setup,
+            "reason": trade.get("reason"),
+            "found": False,
+            "explanation": f"Setup {pair} detectado mas trade rejeitado: {trade.get('reason')}",
+        })
+        return result
+
+    risk = check_risk_limits.invoke({
+        "trade_params": trade,
+        "mode": settings.mode.value,
+        "pair": pair,
+    })
+
+    explanation = explain_setup_detalhado.invoke({"setup": setup, "trade": trade})
+
+    result.update({
+        "setup": setup,
+        "trade_params": trade,
+        "risk_check": risk,
+        "explanation": explanation,
+        "found": True,
+        "reason": None if risk.get("approved") else risk.get("reason"),
+    })
+
+    if not risk.get("approved"):
+        result["found"] = False
+        result["explanation"] = f"Setup {pair} bloqueado por risco: {risk.get('reason')}"
+
+    return result

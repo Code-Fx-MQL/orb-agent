@@ -11,4 +11,6 @@ def test_registry_has_eight_tools():
 def test_run_pair_analysis_stub():
     result = run_pair_analysis("XAUUSD")
     assert result["pair"] == "XAUUSD"
-    assert "detection" in result
+    assert "found" in result
+    assert "trade_params" in result
+    assert "explanation" in result
