@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from orb_agent.config.settings import settings
+from orb_agent.config.settings import OperationMode, settings
 from orb_agent.memory.store import get_memory
+from orb_agent.paper.alerts import check_paper_alerts
+from orb_agent.paper.store import get_paper_store
 from orb_agent.tools.backtest import run_orb_backtest
 from orb_agent.tools.data import fetch_multi_tf_data
 from orb_agent.tools.explain import explain_setup_detalhado
@@ -55,6 +57,8 @@ def run_pair_analysis(pair: str) -> dict[str, Any]:
         "risk_check": None,
         "backtest": None,
         "setup_id": None,
+        "paper_trade": None,
+        "paper_alerts": None,
         "explanation": None,
         "detection": detection,
     }
@@ -69,6 +73,7 @@ def run_pair_analysis(pair: str) -> dict[str, Any]:
 
     if not detection.get("found"):
         result["explanation"] = f"Analise {pair}: {detection.get('reason', 'sem setup')}"
+        result["paper_alerts"] = check_paper_alerts(pair)
         return result
 
     setup = detection["setup"]
@@ -82,6 +87,7 @@ def run_pair_analysis(pair: str) -> dict[str, Any]:
             "reason": trade.get("reason"),
             "found": False,
             "explanation": f"Setup {pair} detectado mas trade rejeitado: {trade.get('reason')}",
+            "paper_alerts": check_paper_alerts(pair),
         })
         return result
 
@@ -102,6 +108,7 @@ def run_pair_analysis(pair: str) -> dict[str, Any]:
         "reason": None if risk.get("approved") else risk.get("reason"),
     })
 
+    paper_result = None
     if not risk.get("approved"):
         result["found"] = False
         result["explanation"] = f"Setup {pair} bloqueado por risco: {risk.get('reason')}"
@@ -109,5 +116,9 @@ def run_pair_analysis(pair: str) -> dict[str, Any]:
         result["setup_id"] = get_memory().log_setup(
             pair, setup, trade, result.get("backtest"),
         )
+        if settings.mode == OperationMode.PAPER:
+            paper_result = get_paper_store().open_position(pair, trade, setup_id=result["setup_id"])
 
+    result["paper_trade"] = paper_result
+    result["paper_alerts"] = check_paper_alerts(pair)
     return result

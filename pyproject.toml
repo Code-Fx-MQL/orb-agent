@@ -26,6 +26,7 @@ ui = ["streamlit>=1.40", "plotly>=5.0"]
 
 [project.scripts]
 orb-agent = "orb_agent.main:main"
+orb-ui = "orb_agent.ui.app:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/orb_agent"]

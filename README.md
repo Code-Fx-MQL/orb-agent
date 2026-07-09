@@ -16,6 +16,8 @@ orb-agent --all --json
 orb-agent --backtest --pair EURUSD
 orb-agent --backtest --all
 ORB_DATA_SOURCE=ccxt orb-agent --pair XAUUSD
+pip install -e ".[ui]"
+orb-ui
 pytest
 .\scripts\validate.ps1
 ```
@@ -25,7 +27,7 @@ pytest
 | Doc | Conteúdo |
 |-----|----------|
 | [Regras Opening Range Breakout](docs/design-docs/orb-strategy.md) | Definição da estratégia |
-| [Plano ativo](docs/exec-plans/active/fase-4-backtest.md) | Roadmap atual |
+| [Plano ativo](docs/exec-plans/active/fase-5-ui.md) | Roadmap atual |
 | [AGENTS.md](AGENTS.md) | Mapa para agentes IA |
 
 ## Status
@@ -36,7 +38,7 @@ pytest
 | 1 — Definição ORB | OK (`detect_orb_setup`) |
 | 2 — Dados CCXT | OK |
 | 3 — Core + pipeline | OK |
-| **4 — Backtest + memoria** | **OK (walk-forward)** |
-| 5 — UI + paper | Pendente |
+| 4 — Backtest + memoria | OK (walk-forward) |
+| **5 — UI + paper** | **OK (Streamlit + paper trading)** |
 
 Ver [FASES 0–8](https://github.com/Code-Fx-MQL/trading-harness/blob/main/docs/FASES-0-8.md).

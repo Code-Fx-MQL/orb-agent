@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     backtest_candle_limit: int = 500
     backtest_htf_lookback: int = 30
     backtest_mtf_lookback: int = 48
+    ui_password: str = ""
 
     @property
     def pairs_list(self) -> list[str]:
