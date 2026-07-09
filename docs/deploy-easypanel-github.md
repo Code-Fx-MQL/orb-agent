@@ -99,7 +99,26 @@ Volume `./data` persiste paper, memória e audit.
 
 ---
 
-## 5. Disparar deploy GitHub
+## 5. Deploy local (API EasyPanel)
+
+```powershell
+cd C:\Users\Rsantos\orb-agent
+$env:EASYPANEL_TOKEN = "SEU_TOKEN"   # Settings -> API no painel
+.\scripts\deploy-easypanel.ps1
+```
+
+Gera `deploy/easypanel/.env.production`, empacota `orb-agent-easypanel-deploy.zip` e faz upload para `localprojetos/orb-agent`.
+
+Sincronizar secrets GitHub (apos `gh auth login`):
+
+```powershell
+$env:EASYPANEL_TOKEN = "SEU_TOKEN"
+.\scripts\sync-github-secrets.ps1
+```
+
+---
+
+## 6. Disparar deploy GitHub
 
 1. GitHub → **Actions** → **Deploy EasyPanel**
 2. **Run workflow**

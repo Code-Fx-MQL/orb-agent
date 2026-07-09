@@ -26,6 +26,15 @@ pytest
 docker compose up --build -d
 ```
 
+## Deploy EasyPanel
+
+```powershell
+$env:EASYPANEL_TOKEN = "SEU_TOKEN"
+.\scripts\deploy-easypanel.ps1
+```
+
+Ver [deploy EasyPanel](docs/deploy-easypanel-github.md).
+
 ## Scan agendado
 
 ```powershell

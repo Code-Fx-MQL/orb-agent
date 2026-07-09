@@ -25,6 +25,8 @@ def should_skip(path: Path) -> bool:
         return True
     if path.name == ".env":
         return True
+    if path.name in ("docker-compose.yml", ".env.production"):
+        return True
     if path.suffix in EXCLUDE_FILES_SUFFIX:
         return True
     if path.name.startswith("orb-agent-easypanel") and path.suffix == ".zip":

@@ -41,7 +41,7 @@ DEFAULTS = {
     "ORB_BLOCK_NEWS": "true",
     "ORB_WEBHOOK_ENABLED": "true",
     "ORB_WEBHOOK_APP_ID": "orb-agent",
-    "ORB_TELEGRAM_ENABLED": "false",
+    "ORB_TELEGRAM_ENABLED": "true",
     "ORB_LIVE_APPROVED": "false",
     "ORB_BROKER_MODE": "stub",
     "ORB_LANGSMITH_TRACING": "false",
@@ -49,6 +49,8 @@ DEFAULTS = {
     "ORB_UI_AUTO_REFRESH_ENABLED": "true",
     "ORB_UI_AUTO_REFRESH_SECONDS": "300",
 }
+
+WEBHOOK_DEFAULT = "https://8.fullscopetrade.com/webhook/orb-globalsend"
 
 SECRET_MAP = {
     "ORB_WEBHOOK_URL": "WEBHOOK_URL",
@@ -66,6 +68,13 @@ def _value_for(key: str) -> str:
     alt = SECRET_MAP.get(key)
     if alt and alt in os.environ and os.environ[alt]:
         return os.environ[alt]
+    if key == "ORB_WEBHOOK_URL":
+        return DEFAULTS.get(key, WEBHOOK_DEFAULT)
+    if key == "ORB_TELEGRAM_ENABLED":
+        has_tg = bool(
+            os.environ.get("ORB_TELEGRAM_BOT_TOKEN") or os.environ.get("TELEGRAM_BOT_TOKEN")
+        ) and bool(os.environ.get("ORB_TELEGRAM_CHAT_ID") or os.environ.get("TELEGRAM_CHAT_ID"))
+        return "true" if has_tg else DEFAULTS.get(key, "false")
     return DEFAULTS.get(key, "")
 
 
