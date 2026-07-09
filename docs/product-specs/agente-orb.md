@@ -13,21 +13,26 @@
 - [x] Memoria JSON (`memory/store.py`)
 - [x] Paper trading (`paper/store.py`, `paper/alerts.py`)
 - [x] Dashboard Streamlit (`ui/app.py`, `orb-ui`)
+- [x] Audit JSONL (`audit/logger.py`)
+- [x] LangSmith tracing opcional (`observability/langsmith.py`)
+- [x] Alertas dispatcher + payloads (`alerts/`)
+- [x] Auto-refresh UI (`ui/production.py`)
 
-## Fase 5 — UI e paper
+## Fase 6 — Observabilidade
 
 | Componente | Ficheiro |
 |------------|----------|
-| Dashboard | `src/orb_agent/ui/app.py` |
-| Graficos ORB | `src/orb_agent/ui/charts.py` |
-| Paper store | `src/orb_agent/paper/store.py` |
-| Alertas SL/TP | `src/orb_agent/paper/alerts.py` |
+| Audit log | `src/orb_agent/audit/logger.py` |
+| LangSmith | `src/orb_agent/observability/langsmith.py` |
 | Metricas | `src/orb_agent/metrics/collector.py` |
+| Alertas | `src/orb_agent/alerts/dispatcher.py` |
+| Auto-refresh | `src/orb_agent/ui/production.py` |
 
-Modo `ORB_MODE=paper` abre posicao simulada em `data/memory/paper_trades.json` quando o setup passa risco.
+Eventos audit: `analysis_no_setup`, `setup_filtered`, `risk_blocked`, `setup_detected`, `paper_open`, `webhook_dispatch`.
 
-## Proximo (Fase 6+)
+## Proximo (Fase 7+)
 
-- Observabilidade (audit JSONL, LangSmith)
-- Live gate
-- Deploy Docker
+- Live gate duplo
+- Broker executor
+- Checklist go-live
+- Deploy Docker (Fase 8)

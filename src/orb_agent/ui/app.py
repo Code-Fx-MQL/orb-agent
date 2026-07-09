@@ -6,9 +6,11 @@ from typing import Any
 
 import streamlit as st
 
+from orb_agent.audit.logger import get_audit_logger
 from orb_agent.config.settings import settings
 from orb_agent.memory.store import get_memory
 from orb_agent.metrics.collector import collect_metrics
+from orb_agent.observability.langsmith import configure_tracing, is_tracing_enabled
 from orb_agent.paper.alerts import check_paper_alerts
 from orb_agent.paper.store import get_paper_store
 from orb_agent.pipeline.analyze import run_pair_analysis
@@ -16,6 +18,11 @@ from orb_agent.tools.analyze import analyze_all_primary_pairs
 from orb_agent.tools.backtest import run_backtest_all_pairs, run_orb_backtest
 from orb_agent.tools.data import fetch_multi_tf_data
 from orb_agent.ui.charts import build_multi_tf_charts, build_orb_chart
+from orb_agent.ui.production import (
+    render_auto_refresh_controls,
+    render_ops_header,
+    setup_auto_refresh,
+)
 from orb_agent.ui.theme import inject_theme
 
 
@@ -81,21 +88,27 @@ def _render_setup(result: dict[str, Any]) -> None:
 def main() -> None:
     st.set_page_config(page_title="Agente ORB", page_icon="📈", layout="wide")
     inject_theme()
+    configure_tracing()
     if not _check_ui_auth():
         return
 
     st.markdown('<p class="orb-title"><strong>Agente ORB</strong> — Opening Range Breakout</p>', unsafe_allow_html=True)
     st.markdown(
-        '<p class="orb-subtitle">Top-down: 1D → 1H → 15m · Dashboard Fase 5</p>',
+        '<p class="orb-subtitle">Top-down: 1D → 1H → 15m · Fase 6 observabilidade</p>',
         unsafe_allow_html=True,
     )
 
     pairs = settings.pairs_list
     pair = st.sidebar.selectbox("Par", pairs, index=0)
     st.sidebar.info(f"Modo: **{settings.mode.value}** · Dados: **{settings.data_source}**")
+    if is_tracing_enabled():
+        st.sidebar.success("LangSmith ativo")
+    render_auto_refresh_controls()
+    render_ops_header()
+    setup_auto_refresh()
 
-    tab_analyze, tab_chart, tab_all, tab_backtest, tab_metrics, tab_memory, tab_paper = st.tabs([
-        "Analise", "Grafico", "Todos", "Backtest", "Metricas", "Memoria", "Paper",
+    tab_analyze, tab_chart, tab_all, tab_backtest, tab_metrics, tab_memory, tab_paper, tab_audit = st.tabs([
+        "Analise", "Grafico", "Todos", "Backtest", "Metricas", "Memoria", "Paper", "Audit",
     ])
 
     with tab_analyze:
@@ -181,11 +194,17 @@ def main() -> None:
     with tab_metrics:
         metrics = collect_metrics()
         kpis = metrics.get("kpis", {})
-        m1, m2, m3, m4 = st.columns(4)
+        m1, m2, m3, m4, m5 = st.columns(5)
         m1.metric("Paper WR", f"{kpis.get('paper_win_rate', 0):.0%}")
         m2.metric("Paper abertas", kpis.get("open_paper_positions", 0))
         m3.metric("Paper Max DD", f"{kpis.get('paper_max_drawdown_pct', 0)}%")
         m4.metric("Setups memoria", kpis.get("memory_setups", 0))
+        m5.metric("Audit events", kpis.get("audit_events", 0))
+        audit_counts = metrics.get("audit", {}).get("event_counts", {})
+        if audit_counts:
+            st.subheader("Audit (recente)")
+            for event, count in audit_counts.items():
+                st.write(f"**{event}**: {count}")
         for p, stats in metrics.get("paper", {}).get("by_pair", {}).items():
             st.write(
                 f"**{p}**: {stats.get('total', 0)} trades · "
@@ -219,6 +238,13 @@ def main() -> None:
             st.subheader("Fechadas")
             for pos in paper["recent_closed"]:
                 st.write(f"{pos['pair']} · {pos.get('outcome')} · PnL {pos.get('pnl_percent')}%")
+
+    with tab_audit:
+        summary = get_audit_logger().summary()
+        st.metric("Eventos recentes", summary.get("total_logged", 0))
+        st.caption(summary.get("path", ""))
+        if summary.get("recent"):
+            st.dataframe(summary["recent"], use_container_width=True)
 
 
 if __name__ == "__main__":

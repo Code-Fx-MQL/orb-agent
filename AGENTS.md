@@ -12,7 +12,7 @@ Blueprint: [trading-harness](https://github.com/Code-Fx-MQL/trading-harness)
 
 | Tarefa | Arquivo |
 |--------|---------|
-| Plano ativo | `docs/exec-plans/active/fase-5-ui.md` |
+| Plano ativo | `docs/exec-plans/active/fase-6-observability.md` |
 | Regras da estratégia | `docs/design-docs/orb-strategy.md` |
 | Spec do agente | `docs/product-specs/agente-orb.md` |
 | Arquitetura | `ARCHITECTURE.md` |
@@ -22,10 +22,13 @@ Blueprint: [trading-harness](https://github.com/Code-Fx-MQL/trading-harness)
 ```
 src/orb_agent/
 ├── providers/             # CCXT + symbols
-├── pipeline/analyze.py    # Pipeline + modo paper
+├── pipeline/analyze.py    # Pipeline + audit + tracing
+├── audit/logger.py        # JSONL append-only
+├── observability/langsmith.py
+├── alerts/                # dispatcher, payloads, webhooks
 ├── paper/                 # store.py, alerts.py
-├── metrics/collector.py   # KPIs memoria + paper
-├── ui/                    # app.py, charts.py, theme.py
+├── metrics/collector.py   # KPIs memoria + paper + audit
+├── ui/                    # app.py, production.py, charts.py
 ├── tools/data.py          # fetch_multi_tf_data
 ├── tools/orb.py           # detect_orb_setup
 ├── tools/analyze.py       # analyze_pair, analyze_all_primary_pairs
@@ -38,6 +41,7 @@ src/orb_agent/
 ```powershell
 .\scripts\setup.ps1
 .\scripts\validate.ps1
+python scripts/doc_garden.py
 orb-agent --pair EURUSD
 orb-agent --all --json
 orb-agent --backtest --pair EURUSD
@@ -54,3 +58,4 @@ pytest -m "not integration"
 - Pipeline determinístico (sem LLM obrigatório)
 - Top-down: HTF → MTF → LTF (configurável em settings)
 - Paper abre posição apenas com `ORB_MODE=paper` e risco aprovado
+- Audit log ativo em todas as análises (`data/audit/trade_audit.jsonl`)

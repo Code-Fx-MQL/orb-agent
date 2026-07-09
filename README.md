@@ -27,7 +27,7 @@ pytest
 | Doc | Conteúdo |
 |-----|----------|
 | [Regras Opening Range Breakout](docs/design-docs/orb-strategy.md) | Definição da estratégia |
-| [Plano ativo](docs/exec-plans/active/fase-5-ui.md) | Roadmap atual |
+| [Plano ativo](docs/exec-plans/active/fase-6-observability.md) | Roadmap atual |
 | [AGENTS.md](AGENTS.md) | Mapa para agentes IA |
 
 ## Status
@@ -39,6 +39,7 @@ pytest
 | 2 — Dados CCXT | OK |
 | 3 — Core + pipeline | OK |
 | 4 — Backtest + memoria | OK (walk-forward) |
-| **5 — UI + paper** | **OK (Streamlit + paper trading)** |
+| 5 — UI + paper | OK (Streamlit + paper trading) |
+| **6 — Observabilidade** | **OK (audit JSONL, LangSmith, alertas)** |
 
 Ver [FASES 0–8](https://github.com/Code-Fx-MQL/trading-harness/blob/main/docs/FASES-0-8.md).

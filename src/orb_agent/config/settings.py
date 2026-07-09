@@ -34,6 +34,15 @@ class Settings(BaseSettings):
     backtest_htf_lookback: int = 30
     backtest_mtf_lookback: int = 48
     ui_password: str = ""
+    audit_dir: str = "data/audit"
+    langsmith_api_key: str = ""
+    langsmith_project: str = "orb-agent"
+    langsmith_tracing: bool = False
+    webhook_url: str = ""
+    webhook_app_id: str = "orb-agent"
+    discord_webhook_url: str = ""
+    ui_auto_refresh_enabled: bool = True
+    ui_auto_refresh_seconds: int = 300
 
     @property
     def pairs_list(self) -> list[str]:
