@@ -99,7 +99,23 @@ Volume `./data` persiste paper, memória e audit.
 
 ---
 
-## 5. Deploy local (API EasyPanel)
+## 5. Deploy via webhook (EasyPanel)
+
+Se o serviço já tem source configurado (Git/ZIP), use o **Deploy Webhook** do painel:
+
+```powershell
+.\scripts\trigger-deploy-webhook.ps1 -DeployUrl "http://SEU-PAINEL:3000/api/deploy/SEU_TOKEN"
+# ou tudo num comando:
+.\scripts\deploy-easypanel.ps1 -DeployWebhookUrl "http://SEU-PAINEL:3000/api/deploy/SEU_TOKEN"
+```
+
+Resposta esperada: `200` + `Deploying...`
+
+> O URL `/api/deploy/...` **nao** e o token API tRPC (`Settings -> API`). Sao credenciais diferentes.
+
+---
+
+## 6. Deploy local (API EasyPanel tRPC)
 
 ```powershell
 cd C:\Users\Rsantos\orb-agent
@@ -118,7 +134,7 @@ $env:EASYPANEL_TOKEN = "SEU_TOKEN"
 
 ---
 
-## 6. Disparar deploy GitHub
+## 7. Disparar deploy GitHub
 
 1. GitHub → **Actions** → **Deploy EasyPanel**
 2. **Run workflow**

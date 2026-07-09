@@ -3,6 +3,7 @@ param(
     [string]$EasyPanelUrl = "https://0ikuso.easypanel.host",
     [string]$Project = "localprojetos",
     [string]$Service = "orb-agent",
+    [string]$DeployWebhookUrl = "",
     [switch]$SkipUpload
 )
 
@@ -54,6 +55,13 @@ Write-Host "1/3 Gerar .env.production"
 
 Write-Host "2/3 Empacotar ZIP"
 & $python (Join-Path $PSScriptRoot "build_easypanel_zip.py")
+
+if ($DeployWebhookUrl) {
+    Write-Host "3/3 Deploy webhook"
+    & (Join-Path $PSScriptRoot "trigger-deploy-webhook.ps1") -DeployUrl $DeployWebhookUrl
+    Write-Host "[OK] Deploy webhook disparado" -ForegroundColor Green
+    exit 0
+}
 
 if ($SkipUpload) {
     Write-Host "[OK] Pacote pronto (upload ignorado): orb-agent-easypanel-deploy.zip" -ForegroundColor Green
