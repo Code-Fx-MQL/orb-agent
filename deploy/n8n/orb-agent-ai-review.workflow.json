@@ -29,6 +29,16 @@
     },
     {
       "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst payload = raw.body && typeof raw.body === 'object' && !Array.isArray(raw.body)\n  ? raw.body\n  : raw;\nreturn [{ json: payload }];"
+      },
+      "id": "b2000000-0000-4000-8000-000000000015",
+      "name": "Normalize Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [120, 300]
+    },
+    {
+      "parameters": {
         "conditions": {
           "options": {
             "caseSensitive": true,
@@ -316,7 +326,7 @@
       "parameters": {
         "operation": "sendMessage",
         "chatId": "CONFIGURE_TELEGRAM_CHAT_ID",
-        "text": "=✅ *ORB Agent — Setup APROVADO*\n\n*Par:* {{ $json.pair }}\n*Setup ID:* {{ $json.setup_id }}\n*Confiança IA:* {{ Math.round(($json.confidence || 0) * 100) }}%\n\n*Motivo:* {{ $json.reasoning }}\n\n*Trade:* E {{ $('Webhook ORB Globalsend').item.json.data.entry }} · SL {{ $('Webhook ORB Globalsend').item.json.data.stop_loss }} · TP {{ $('Webhook ORB Globalsend').item.json.data.take_profit }}\n*R:R:* {{ $('Webhook ORB Globalsend').item.json.data.risk_reward }}\n*OR:* {{ $('Webhook ORB Globalsend').item.json.data.setup.or_low }} — {{ $('Webhook ORB Globalsend').item.json.data.setup.or_high }}\n*Backtest KPI:* {{ $('Webhook ORB Globalsend').item.json.data.backtest.meets_kpi ? 'sim' : 'não' }}",
+        "text": "=✅ *ORB Agent — Setup APROVADO*\n\n*Par:* {{ $json.pair }}\n*Setup ID:* {{ $json.setup_id }}\n*Confiança IA:* {{ Math.round(($json.confidence || 0) * 100) }}%\n\n*Motivo:* {{ $json.reasoning }}\n\n*Trade:* E {{ $('Normalize Payload').item.json.data.entry }} · SL {{ $('Normalize Payload').item.json.data.stop_loss }} · TP {{ $('Normalize Payload').item.json.data.take_profit }}\n*R:R:* {{ $('Normalize Payload').item.json.data.risk_reward }}\n*OR:* {{ $('Normalize Payload').item.json.data.setup.or_low }} — {{ $('Normalize Payload').item.json.data.setup.or_high }}\n*Backtest KPI:* {{ $('Normalize Payload').item.json.data.backtest.meets_kpi ? 'sim' : 'não' }}",
         "additionalFields": {
           "parse_mode": "Markdown"
         }
@@ -511,6 +521,17 @@
   ],
   "connections": {
     "Webhook ORB Globalsend": {
+      "main": [
+        [
+          {
+            "node": "Normalize Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Payload": {
       "main": [
         [
           {

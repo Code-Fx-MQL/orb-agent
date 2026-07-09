@@ -28,6 +28,7 @@ orb-agent (scan / setup)
    - **Telegram** → nós `Telegram Approve`, `Reject`, `Review`, `Paper Alert`
 4. Em cada nó Telegram, definir **Chat ID** (ex.: `-1004357973860`)
 5. **Ativar** o workflow (toggle Active)
+6. Se receber `Not orb-agent payload`, reimportar workflow atualizado (nó **Normalize Payload** após webhook)
 
 ## Configurar o agente
 
@@ -46,6 +47,7 @@ Testar:
 
 ```powershell
 python scripts\test-webhook.py
+python scripts\test-setup-found.py
 ```
 
 Resposta esperada do n8n (`test_ping`):
