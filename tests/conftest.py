@@ -2,6 +2,7 @@ import pytest
 
 from orb_agent.audit.logger import reset_audit_logger
 from orb_agent.config import settings as settings_mod
+from orb_agent.guardrails.live_gate import set_live_session_token
 from orb_agent.memory.store import reset_memory
 from orb_agent.paper.store import reset_paper_store
 from orb_agent.tools.risk import reset_risk_tracker
@@ -20,8 +21,10 @@ def _isolated_runtime(tmp_path, monkeypatch):
     reset_memory()
     reset_paper_store()
     reset_audit_logger()
+    set_live_session_token(None)
     yield
     reset_risk_tracker()
     reset_memory()
     reset_paper_store()
     reset_audit_logger()
+    set_live_session_token(None)

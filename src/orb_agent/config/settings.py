@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     block_news: bool = True
     live_approved: bool = False
     live_approval_token: str = ""
+    broker_mode: str = "stub"
     memory_dir: str = "data/memory"
     webhook_enabled: bool = False
     ccxt_ohlcv_limit: int = 100

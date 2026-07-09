@@ -18,6 +18,7 @@ from orb_agent.tools.analyze import analyze_all_primary_pairs
 from orb_agent.tools.backtest import run_backtest_all_pairs, run_orb_backtest
 from orb_agent.tools.data import fetch_multi_tf_data
 from orb_agent.ui.charts import build_multi_tf_charts, build_orb_chart
+from orb_agent.ui.live_ops_panel import render_live_ops_tab
 from orb_agent.ui.production import (
     render_auto_refresh_controls,
     render_ops_header,
@@ -94,7 +95,7 @@ def main() -> None:
 
     st.markdown('<p class="orb-title"><strong>Agente ORB</strong> — Opening Range Breakout</p>', unsafe_allow_html=True)
     st.markdown(
-        '<p class="orb-subtitle">Top-down: 1D → 1H → 15m · Fase 6 observabilidade</p>',
+        '<p class="orb-subtitle">Top-down: 1D → 1H → 15m · Fase 7 live gate</p>',
         unsafe_allow_html=True,
     )
 
@@ -107,9 +108,12 @@ def main() -> None:
     render_ops_header()
     setup_auto_refresh()
 
-    tab_analyze, tab_chart, tab_all, tab_backtest, tab_metrics, tab_memory, tab_paper, tab_audit = st.tabs([
-        "Analise", "Grafico", "Todos", "Backtest", "Metricas", "Memoria", "Paper", "Audit",
+    tab_live, tab_analyze, tab_chart, tab_all, tab_backtest, tab_metrics, tab_memory, tab_paper, tab_audit = st.tabs([
+        "Live Ops", "Analise", "Grafico", "Todos", "Backtest", "Metricas", "Memoria", "Paper", "Audit",
     ])
+
+    with tab_live:
+        render_live_ops_tab()
 
     with tab_analyze:
         if st.button("Analisar", key="btn_analyze"):

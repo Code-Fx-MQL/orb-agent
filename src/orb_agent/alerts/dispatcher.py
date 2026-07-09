@@ -64,3 +64,22 @@ def notify_setup_found(pair: str, result: dict[str, Any]) -> None:
         level="trade",
         data=build_setup_found_data(pair, result),
     )
+
+
+def notify_live_order(order_result: dict[str, Any], pair: str) -> None:
+    if order_result.get("placed"):
+        dispatch_alert(
+            event_type="live_order",
+            title=f"Ordem {pair}",
+            body=order_result.get("message", f"Order {order_result.get('order_id')}"),
+            level="trade",
+            data={"pair": pair, **order_result},
+        )
+    elif order_result.get("reason"):
+        dispatch_alert(
+            event_type="live_blocked",
+            title=f"Live bloqueado {pair}",
+            body=str(order_result["reason"]),
+            level="warning",
+            data={"pair": pair, **order_result},
+        )

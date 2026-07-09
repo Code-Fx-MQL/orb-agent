@@ -12,7 +12,8 @@ Blueprint: [trading-harness](https://github.com/Code-Fx-MQL/trading-harness)
 
 | Tarefa | Arquivo |
 |--------|---------|
-| Plano ativo | `docs/exec-plans/active/fase-6-observability.md` |
+| Plano ativo | `docs/exec-plans/active/fase-7-live-gate.md` |
+| Checklist go-live | `docs/design-docs/go-live-checklist.md` |
 | Regras da estratégia | `docs/design-docs/orb-strategy.md` |
 | Spec do agente | `docs/product-specs/agente-orb.md` |
 | Arquitetura | `ARCHITECTURE.md` |
@@ -21,19 +22,15 @@ Blueprint: [trading-harness](https://github.com/Code-Fx-MQL/trading-harness)
 
 ```
 src/orb_agent/
-├── providers/             # CCXT + symbols
-├── pipeline/analyze.py    # Pipeline + audit + tracing
-├── audit/logger.py        # JSONL append-only
-├── observability/langsmith.py
-├── alerts/                # dispatcher, payloads, webhooks
-├── paper/                 # store.py, alerts.py
-├── metrics/collector.py   # KPIs memoria + paper + audit
-├── ui/                    # app.py, production.py, charts.py
-├── tools/data.py          # fetch_multi_tf_data
-├── tools/orb.py           # detect_orb_setup
-├── tools/analyze.py       # analyze_pair, analyze_all_primary_pairs
-├── config/orb_rules.py
-└── main.py
+├── guardrails/live_gate.py   # Gate duplo live
+├── guardrails/token_rotation.py
+├── broker/executor.py        # stub + ccxt
+├── ops/golive.py             # Checklist semáforo
+├── pipeline/analyze.py       # Pipeline + paper/live
+├── audit/logger.py
+├── alerts/dispatcher.py
+├── ui/live_ops_panel.py
+└── main.py                   # --live-token
 ```
 
 ## Comandos
@@ -41,11 +38,9 @@ src/orb_agent/
 ```powershell
 .\scripts\setup.ps1
 .\scripts\validate.ps1
-python scripts/doc_garden.py
 orb-agent --pair EURUSD
-orb-agent --all --json
-orb-agent --backtest --pair EURUSD
-ORB_DATA_SOURCE=ccxt orb-agent --pair XAUUSD
+orb-agent --pair EURUSD --live-token TOKEN
+ORB_MODE=live orb-agent --pair XAUUSD --live-token TOKEN
 pip install -e ".[ui]"
 orb-ui
 pytest -m "not integration"
@@ -54,8 +49,7 @@ pytest -m "not integration"
 ## Regras inegociáveis
 
 - Modo default `analysis`
-- Live bloqueado sem gate duplo
+- Live bloqueado sem gate duplo (`ORB_LIVE_APPROVED` + `--live-token`)
+- Broker stub por default — `ORB_BROKER_MODE=ccxt` só com checklist OK
 - Pipeline determinístico (sem LLM obrigatório)
 - Top-down: HTF → MTF → LTF (configurável em settings)
-- Paper abre posição apenas com `ORB_MODE=paper` e risco aprovado
-- Audit log ativo em todas as análises (`data/audit/trade_audit.jsonl`)

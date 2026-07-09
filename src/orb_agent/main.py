@@ -2,6 +2,7 @@ import argparse
 import json
 
 from orb_agent.config.settings import settings
+from orb_agent.guardrails.live_gate import set_live_session_token
 from orb_agent.observability.langsmith import configure_tracing
 from orb_agent.pipeline.analyze import run_pair_analysis
 from orb_agent.tools.analyze import analyze_all_primary_pairs
@@ -15,7 +16,11 @@ def main():
     p.add_argument("--all", action="store_true", help="Analisar todos os pares ativos")
     p.add_argument("--backtest", action="store_true", help="Executar backtest walk-forward")
     p.add_argument("--json", action="store_true", help="Output JSON formatado")
+    p.add_argument("--live-token", default=None, help="Token de aprovacao live (sessao)")
     args = p.parse_args()
+
+    if args.live_token:
+        set_live_session_token(args.live_token)
 
     if args.backtest:
         if args.all:

@@ -12,6 +12,7 @@ Agente de IA para **Opening Range Breakout** construído com [Trading Harness](h
 .\scripts\setup.ps1
 Copy-Item .env.example .env
 orb-agent --pair EURUSD
+orb-agent --pair EURUSD --live-token SEU_TOKEN
 orb-agent --all --json
 orb-agent --backtest --pair EURUSD
 orb-agent --backtest --all
@@ -27,7 +28,8 @@ pytest
 | Doc | Conteúdo |
 |-----|----------|
 | [Regras Opening Range Breakout](docs/design-docs/orb-strategy.md) | Definição da estratégia |
-| [Plano ativo](docs/exec-plans/active/fase-6-observability.md) | Roadmap atual |
+| [Plano ativo](docs/exec-plans/active/fase-7-live-gate.md) | Roadmap atual |
+| [Checklist go-live](docs/design-docs/go-live-checklist.md) | Gate duplo live |
 | [AGENTS.md](AGENTS.md) | Mapa para agentes IA |
 
 ## Status
@@ -40,6 +42,7 @@ pytest
 | 3 — Core + pipeline | OK |
 | 4 — Backtest + memoria | OK (walk-forward) |
 | 5 — UI + paper | OK (Streamlit + paper trading) |
-| **6 — Observabilidade** | **OK (audit JSONL, LangSmith, alertas)** |
+| 6 — Observabilidade | OK (audit JSONL, LangSmith, alertas) |
+| **7 — Live gate** | **OK (gate duplo, broker, checklist)** |
 
 Ver [FASES 0–8](https://github.com/Code-Fx-MQL/trading-harness/blob/main/docs/FASES-0-8.md).

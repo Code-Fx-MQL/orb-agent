@@ -11,6 +11,7 @@ import streamlit as st
 from orb_agent.alerts.webhooks import webhook_status
 from orb_agent.config.settings import settings
 from orb_agent.metrics.collector import collect_metrics
+from orb_agent.ops.golive import get_golive_checklist
 from orb_agent.observability.langsmith import is_tracing_enabled
 from orb_agent.paper.alerts import check_paper_alerts
 from orb_agent.paper.store import get_paper_store
@@ -35,10 +36,13 @@ def refresh_live_data() -> dict[str, Any]:
     metrics = collect_metrics()
     paper = get_paper_store().summary()
     alerts = check_paper_alerts()
+    checklist = get_golive_checklist()
     payload = {
         "metrics": metrics,
         "paper": paper,
         "alerts": alerts,
+        "checklist_overall": checklist.get("overall", "pending"),
+        "checklist_label": checklist.get("overall_label", ""),
         "refreshed_at": datetime.now(UTC).isoformat(),
     }
     st.session_state["orb_live_data"] = payload
@@ -67,9 +71,12 @@ def render_ops_header() -> None:
     kpis = metrics.get("kpis", {})
     paper_open = kpis.get("open_paper_positions", 0)
     webhook = webhook_status()
+    golive = live.get("checklist_overall", "pending")
+    golive_label = live.get("checklist_label", golive.upper())
 
     items = [
         _ops_item("Modo", settings.mode.value.upper(), "info"),
+        _ops_item("Go-live", golive_label[:28], _status_class(golive)),
         _ops_item("Paper abertas", str(paper_open), "ok" if paper_open == 0 else "warn"),
         _ops_item(
             "Webhook",

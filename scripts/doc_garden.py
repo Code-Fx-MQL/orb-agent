@@ -55,6 +55,10 @@ def main() -> None:
         "src/orb_agent/audit/logger.py",
         "src/orb_agent/observability/langsmith.py",
         "src/orb_agent/alerts/dispatcher.py",
+        "src/orb_agent/guardrails/live_gate.py",
+        "src/orb_agent/broker/executor.py",
+        "src/orb_agent/ops/golive.py",
+        "docs/design-docs/go-live-checklist.md",
     ]
     for rel in required:
         if not (ROOT / rel).exists():

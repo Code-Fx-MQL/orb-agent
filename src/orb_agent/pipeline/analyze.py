@@ -72,6 +72,7 @@ def run_pair_analysis(pair: str) -> dict[str, Any]:
         "backtest": None,
         "setup_id": None,
         "paper_trade": None,
+        "live_order": None,
         "paper_alerts": None,
         "explanation": None,
         "detection": detection,
@@ -133,6 +134,7 @@ def run_pair_analysis(pair: str) -> dict[str, Any]:
     })
 
     paper_result = None
+    live_order = None
     if not risk.get("approved"):
         result["found"] = False
         result["explanation"] = f"Setup {pair} bloqueado por risco: {risk.get('reason')}"
@@ -151,6 +153,10 @@ def run_pair_analysis(pair: str) -> dict[str, Any]:
                 "setup_id": result["setup_id"],
                 "result": paper_result,
             })
+        elif settings.mode == OperationMode.LIVE:
+            from orb_agent.broker.executor import place_orb_order
+
+            live_order = place_orb_order(pair, trade, setup_id=result["setup_id"])
 
         get_audit_logger().log("setup_detected", {
             "pair": pair,
@@ -167,6 +173,7 @@ def run_pair_analysis(pair: str) -> dict[str, Any]:
             notify_setup_found(pair, result)
 
     result["paper_trade"] = paper_result
+    result["live_order"] = live_order
     result["paper_alerts"] = check_paper_alerts(pair)
     _dispatch_paper_alerts(result)
     return result
