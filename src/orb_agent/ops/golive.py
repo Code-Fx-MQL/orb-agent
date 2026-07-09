@@ -6,7 +6,7 @@ import json
 from datetime import UTC, datetime
 from typing import Any, Literal
 
-from orb_agent.alerts.webhooks import webhook_status
+from orb_agent.alerts.webhooks import telegram_status, webhook_status
 from orb_agent.backtest.golive import backtest_golive_path
 from orb_agent.config.settings import OperationMode, settings
 from orb_agent.guardrails.live_gate import live_gate_status
@@ -170,6 +170,16 @@ def get_golive_checklist() -> dict[str, Any]:
             ),
         },
         {
+            "id": "telegram",
+            "label": "Telegram alertas",
+            "status": "ok" if telegram_status()["ready"] else "warn",
+            "detail": (
+                "Ativo — alertas diretos do harness"
+                if telegram_status()["ready"]
+                else "ORB_TELEGRAM_ENABLED ou token/chat_id nao configurados"
+            ),
+        },
+        {
             "id": "ui_auth",
             "label": "Protecao dashboard",
             "status": "ok" if auth["ready"] else "warn",
@@ -244,6 +254,7 @@ def get_ops_snapshot() -> dict[str, Any]:
         },
         "backtest_totals": bt.get("totals") if bt else None,
         "langsmith": settings.langsmith_tracing,
+        "telegram": telegram_status(),
     }
 
 

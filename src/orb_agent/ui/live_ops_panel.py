@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import streamlit as st
 
-from orb_agent.alerts.webhooks import send_webhook
+from orb_agent.alerts.telegram_messages import format_generic_message
+from orb_agent.alerts.webhooks import send_telegram, send_webhook, telegram_status
 from orb_agent.audit.logger import get_audit_logger
 from orb_agent.guardrails.live_gate import live_gate_status, set_live_session_token
 from orb_agent.ops.golive import CORE_PAIRS, get_ops_snapshot
@@ -64,7 +65,7 @@ def _render_gate(gate: dict) -> None:
 
 def _render_actions() -> None:
     st.subheader("Acoes operacionais")
-    col_scan, col_webhook, col_alerts = st.columns(3)
+    col_scan, col_webhook, col_telegram, col_alerts = st.columns(4)
 
     with col_scan:
         if st.button("Executar scan", key="btn_live_scan", type="primary"):
@@ -96,6 +97,23 @@ def _render_actions() -> None:
                 )
                 st.session_state["last_webhook"] = result
 
+    with col_telegram:
+        if st.button("Testar Telegram", key="btn_test_telegram"):
+            tg = telegram_status()
+            if not tg["ready"]:
+                st.session_state["last_telegram"] = {
+                    "sent": False,
+                    "reason": "Configure ORB_TELEGRAM_ENABLED, ORB_TELEGRAM_BOT_TOKEN e ORB_TELEGRAM_CHAT_ID",
+                }
+            else:
+                with st.spinner("Enviando Telegram..."):
+                    msg = format_generic_message(
+                        "Teste Live Ops",
+                        "Telegram do harness ORB Agent operacional.",
+                        "success",
+                    )
+                    st.session_state["last_telegram"] = send_telegram(msg, parse_mode="HTML")
+
     with col_alerts:
         if st.button("Verificar SL/TP", key="btn_live_alerts"):
             with st.spinner("Verificando paper..."):
@@ -111,6 +129,13 @@ def _render_actions() -> None:
             st.success(f"Webhook enviado · event_type={wh.get('event_type')}")
         else:
             st.error(f"Webhook falhou: {wh}")
+
+    if st.session_state.get("last_telegram"):
+        tg = st.session_state["last_telegram"]
+        if tg.get("sent"):
+            st.success("Telegram enviado")
+        else:
+            st.error(f"Telegram falhou: {tg.get('reason', tg)}")
 
     if st.session_state.get("last_paper_alerts"):
         alerts = st.session_state["last_paper_alerts"]
@@ -173,6 +198,14 @@ def render_live_ops_tab() -> None:
             st.success(f"Webhook: {wh.get('app_id')} → {wh.get('url_host', 'configurado')}")
         else:
             st.warning("Webhook nao configurado")
+
+        tg = snapshot.get("telegram", {})
+        if tg.get("ready"):
+            st.success("Telegram: ativo")
+        elif tg.get("configured"):
+            st.warning("Telegram: configurado mas ORB_TELEGRAM_ENABLED=false")
+        else:
+            st.warning("Telegram nao configurado")
 
     with tab_actions:
         _render_actions()

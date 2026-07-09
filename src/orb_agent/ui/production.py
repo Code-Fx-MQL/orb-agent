@@ -8,7 +8,7 @@ from typing import Any
 
 import streamlit as st
 
-from orb_agent.alerts.webhooks import webhook_status
+from orb_agent.alerts.webhooks import telegram_status, webhook_status
 from orb_agent.config.settings import settings
 from orb_agent.metrics.collector import collect_metrics
 from orb_agent.ops.golive import get_golive_checklist
@@ -82,6 +82,11 @@ def render_ops_header() -> None:
             "Webhook",
             "Ativo" if webhook.get("ready") else "Off",
             "ok" if webhook.get("ready") else "warn",
+        ),
+        _ops_item(
+            "Telegram",
+            "Ativo" if telegram_status().get("ready") else "Off",
+            "ok" if telegram_status().get("ready") else "warn",
         ),
         _ops_item(
             "LangSmith",

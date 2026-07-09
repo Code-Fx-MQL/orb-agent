@@ -23,12 +23,26 @@ pytest
 .\scripts\validate.ps1
 ```
 
+## Docker
+
+```powershell
+docker compose up --build -d
+# Dashboard: http://localhost:8501
+```
+
+## Scan agendado
+
+```powershell
+.\scripts\scheduled-scan.ps1
+.\scripts\register-scheduled-task.ps1 -IntervalMinutes 15
+```
+
 ## Documentação
 
 | Doc | Conteúdo |
 |-----|----------|
 | [Regras Opening Range Breakout](docs/design-docs/orb-strategy.md) | Definição da estratégia |
-| [Plano ativo](docs/exec-plans/active/fase-7-live-gate.md) | Roadmap atual |
+| [Deploy EasyPanel](docs/deploy-easypanel-github.md) | Docker + CI/CD |
 | [Checklist go-live](docs/design-docs/go-live-checklist.md) | Gate duplo live |
 | [AGENTS.md](AGENTS.md) | Mapa para agentes IA |
 
@@ -43,6 +57,7 @@ pytest
 | 4 — Backtest + memoria | OK (walk-forward) |
 | 5 — UI + paper | OK (Streamlit + paper trading) |
 | 6 — Observabilidade | OK (audit JSONL, LangSmith, alertas) |
-| **7 — Live gate** | **OK (gate duplo, broker, checklist)** |
+| 7 — Live gate | OK (gate duplo, broker, checklist) |
+| **8 — Produção (fase-8)** | **OK (Docker, Telegram, scan agendado)** |
 
-Ver [FASES 0–8](https://github.com/Code-Fx-MQL/trading-harness/blob/main/docs/FASES-0-8.md).
+**Fases 0–8 completas.** Ver [FASES 0–8](https://github.com/Code-Fx-MQL/trading-harness/blob/main/docs/FASES-0-8.md).

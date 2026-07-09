@@ -25,3 +25,7 @@ Thumbs.db
 
 # Runtime data (strategy repos)
 data/
+
+# Deploy artifacts
+deploy/easypanel/.env.production
+orb-agent-easypanel*.zip

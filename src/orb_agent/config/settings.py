@@ -42,6 +42,9 @@ class Settings(BaseSettings):
     webhook_url: str = ""
     webhook_app_id: str = "orb-agent"
     discord_webhook_url: str = ""
+    telegram_enabled: bool = False
+    telegram_bot_token: str = ""
+    telegram_chat_id: str = ""
     ui_auto_refresh_enabled: bool = True
     ui_auto_refresh_seconds: int = 300
 

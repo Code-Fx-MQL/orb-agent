@@ -1,0 +1,42 @@
+# EasyPanel Compose — usar na raiz do ZIP (context: .)
+# Volume /app/data obrigatorio para paper, memoria e audit.
+
+services:
+  orb-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PORT: ${PORT:-8501}
+      ORB_MODE: ${ORB_MODE:-paper}
+      ORB_PAIRS: ${ORB_PAIRS:-XAUUSD,EURUSD}
+      ORB_DATA_SOURCE: ${ORB_DATA_SOURCE:-auto}
+      ORB_REQUIRE_RETEST: ${ORB_REQUIRE_RETEST:-true}
+      ORB_BREAKOUT_MODE: ${ORB_BREAKOUT_MODE:-retest}
+      ORB_WEBHOOK_ENABLED: ${ORB_WEBHOOK_ENABLED:-true}
+      ORB_WEBHOOK_URL: ${ORB_WEBHOOK_URL:-}
+      ORB_WEBHOOK_APP_ID: ${ORB_WEBHOOK_APP_ID:-orb-agent}
+      ORB_TELEGRAM_ENABLED: ${ORB_TELEGRAM_ENABLED:-false}
+      ORB_TELEGRAM_BOT_TOKEN: ${ORB_TELEGRAM_BOT_TOKEN:-}
+      ORB_TELEGRAM_CHAT_ID: ${ORB_TELEGRAM_CHAT_ID:-}
+      ORB_LIVE_APPROVED: ${ORB_LIVE_APPROVED:-false}
+      ORB_LIVE_APPROVAL_TOKEN: ${ORB_LIVE_APPROVAL_TOKEN:-}
+      ORB_BROKER_MODE: ${ORB_BROKER_MODE:-stub}
+      ORB_LANGSMITH_TRACING: ${ORB_LANGSMITH_TRACING:-false}
+      ORB_LANGSMITH_API_KEY: ${ORB_LANGSMITH_API_KEY:-}
+      ORB_LANGSMITH_PROJECT: ${ORB_LANGSMITH_PROJECT:-orb-agent}
+      ORB_UI_PASSWORD: ${ORB_UI_PASSWORD:-}
+      ORB_UI_AUTO_REFRESH_ENABLED: ${ORB_UI_AUTO_REFRESH_ENABLED:-true}
+      ORB_UI_AUTO_REFRESH_SECONDS: ${ORB_UI_AUTO_REFRESH_SECONDS:-300}
+    volumes:
+      - orb-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/bin/sh", "-c", "curl -f http://localhost:$${PORT:-8501}/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  orb-data:

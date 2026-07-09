@@ -1,0 +1,14 @@
+.venv
+venv
+.git
+.pytest_cache
+__pycache__
+*.pyc
+.env
+.env.local
+.env.production
+data/memory/*.json
+data/cache/*.json
+data/audit/*.jsonl
+terminals
+*.zip

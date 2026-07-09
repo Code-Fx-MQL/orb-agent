@@ -1,33 +1,28 @@
 # Spec - Agente Opening Range Breakout
 
-## MVP
+## MVP — Fases 0-8 completas
 
-- [x] Pipeline deterministico com detector ORB
-- [x] detect_orb_setup (1D bias -> 1H OR -> 15m breakout/retest)
-- [x] Dados CCXT (stub/ccxt/auto) + pairs registry
-- [x] Backtest walk-forward + export `data/backtest_golive.json`
+- [x] Pipeline ORB top-down (1D → 1H → 15m)
+- [x] CCXT + backtest walk-forward
 - [x] Paper trading + Dashboard Streamlit
-- [x] Audit JSONL + LangSmith + alertas
-- [x] Live gate duplo (`guardrails/live_gate.py`)
-- [x] Broker executor stub/ccxt (`broker/executor.py`)
-- [x] Checklist go-live (`ops/golive.py`)
-- [x] Painel Live Ops (`ui/live_ops_panel.py`)
-- [x] Rotacao de token (`guardrails/token_rotation.py`)
+- [x] Audit JSONL + LangSmith + alertas n8n
+- [x] Live gate duplo + broker stub/ccxt
+- [x] Checklist go-live + Live Ops
+- [x] Docker + EasyPanel deploy
+- [x] Telegram alertas
+- [x] Scan agendado (Windows Task Scheduler)
 
-## Fase 7 — Live gate
+## Fase 8 — Produção
 
 | Componente | Ficheiro |
 |------------|----------|
-| Gate duplo | `src/orb_agent/guardrails/live_gate.py` |
-| Broker | `src/orb_agent/broker/executor.py` |
-| Checklist | `src/orb_agent/ops/golive.py` |
-| Live Ops UI | `src/orb_agent/ui/live_ops_panel.py` |
-| Token rotation | `src/orb_agent/guardrails/token_rotation.py` |
+| Docker | `Dockerfile`, `docker-compose.yml` |
+| EasyPanel | `deploy/easypanel/compose.yml` |
+| Telegram | `alerts/telegram_messages.py` |
+| Scan agendado | `scripts/scheduled_scan.py` |
+| CI deploy | `.github/workflows/deploy.yml` |
+| Guia deploy | `docs/deploy-easypanel-github.md` |
 
-Eventos audit live: `live_blocked`, `live_order_stub`, `live_order_placed`, `live_order_failed`.
+## Maturidade
 
-## Proximo (Fase 8)
-
-- Docker + deploy
-- Telegram webhooks
-- Scan agendado
+Paridade com blueprint [trading-harness Fases 0-8](https://github.com/Code-Fx-MQL/trading-harness/blob/main/docs/FASES-0-8.md).

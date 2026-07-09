@@ -1,0 +1,18 @@
+services:
+  orb-ui:
+    build: .
+    ports:
+      - "${PORT:-8501}:${PORT:-8501}"
+    environment:
+      PORT: ${PORT:-8501}
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

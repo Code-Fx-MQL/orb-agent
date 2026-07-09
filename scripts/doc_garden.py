@@ -59,6 +59,10 @@ def main() -> None:
         "src/orb_agent/broker/executor.py",
         "src/orb_agent/ops/golive.py",
         "docs/design-docs/go-live-checklist.md",
+        "docs/deploy-easypanel-github.md",
+        "Dockerfile",
+        "docker-compose.yml",
+        "deploy/easypanel/compose.yml",
     ]
     for rel in required:
         if not (ROOT / rel).exists():
