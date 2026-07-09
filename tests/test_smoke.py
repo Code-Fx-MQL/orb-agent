@@ -13,4 +13,5 @@ def test_run_pair_analysis_stub():
     assert result["pair"] == "XAUUSD"
     assert "found" in result
     assert "trade_params" in result
+    assert "backtest" in result
     assert "explanation" in result

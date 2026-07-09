@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 from typing import Any
 
@@ -41,3 +42,15 @@ class RiskCheckResult(BaseModel):
     risk_percent: float = 0.0
     daily_risk_used: float = 0.0
     weekly_risk_used: float = 0.0
+
+
+class BacktestResult(BaseModel):
+    pair: str
+    period_start: datetime
+    period_end: datetime
+    total_trades: int
+    win_rate: float
+    avg_rr: float
+    profit_factor: float
+    max_drawdown: float
+    notes: str = ""

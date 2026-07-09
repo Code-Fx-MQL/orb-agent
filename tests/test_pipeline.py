@@ -67,3 +67,5 @@ def test_pipeline_full_stack_with_synthetic_setup(monkeypatch):
     assert result["risk_check"]["approved"] is True
     assert result["confluences"]["strength"] in ("moderate", "strong")
     assert "Setup ORB" in result["explanation"]
+    assert result.get("setup_id")
+    assert result.get("backtest") is not None

@@ -84,10 +84,37 @@ def _fetch_stub(
     return result
 
 
-def _fetch_ccxt(pair: str, timeframes: list[str]) -> dict[str, Any]:
+def _fetch_ccxt(pair: str, timeframes: list[str], *, limit: int | None = None) -> dict[str, Any]:
     from orb_agent.providers.ccxt_provider import fetch_multi_tf
 
-    return fetch_multi_tf(pair, timeframes, limit=settings.ccxt_ohlcv_limit)
+    return fetch_multi_tf(pair, timeframes, limit=limit or settings.ccxt_ohlcv_limit)
+
+
+def fetch_backtest_multi_tf(
+    pair: str,
+    timeframes: list[str],
+    candle_limit: int,
+) -> dict[str, Any]:
+    """Carrega OHLCV estendido para backtest walk-forward."""
+    market = resolve_pair_market(pair)
+
+    if market.stub_only or settings.data_source == "stub":
+        result = _fetch_stub(pair, timeframes, candle_limit=candle_limit)
+        if market.stub_only:
+            result["note"] = market.note or result["note"]
+        return result
+
+    if settings.data_source == "ccxt":
+        return _fetch_ccxt(pair, timeframes, limit=candle_limit)
+
+    try:
+        return _fetch_ccxt(pair, timeframes, limit=candle_limit)
+    except Exception as exc:
+        logger.warning("backtest_ccxt_fallback_stub", pair=pair, error=str(exc))
+        result = _fetch_stub(pair, timeframes, candle_limit=candle_limit)
+        result["fallback_reason"] = str(exc)
+        result["note"] = f"Fallback stub apos falha CCXT: {exc}"
+        return result
 
 
 @tool

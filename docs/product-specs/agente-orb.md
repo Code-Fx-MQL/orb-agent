@@ -9,4 +9,6 @@
 - [x] Dados CCXT (stub/ccxt/auto) + pairs registry
 - [x] Pipeline completo: deteccao -> trade -> risco -> explicacao
 - [x] calculate_trade_params com sizing e validacao R:R
-- [ ] Backtest walk-forward (Fase 4)
+- [x] Backtest walk-forward + export `data/backtest_golive.json`
+- [x] Memoria JSON (`memory/store.py`)
+- [ ] Paper trading + UI (Fase 5)

@@ -12,7 +12,7 @@ Blueprint: [trading-harness](https://github.com/Code-Fx-MQL/trading-harness)
 
 | Tarefa | Arquivo |
 |--------|---------|
-| Plano ativo | `docs/exec-plans/active/fase-3-core.md` |
+| Plano ativo | `docs/exec-plans/active/fase-4-backtest.md` |
 | Regras da estratégia | `docs/design-docs/orb-strategy.md` |
 | Spec do agente | `docs/product-specs/agente-orb.md` |
 | Arquitetura | `ARCHITECTURE.md` |

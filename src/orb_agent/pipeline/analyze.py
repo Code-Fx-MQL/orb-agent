@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import Any
 
 from orb_agent.config.settings import settings
+from orb_agent.memory.store import get_memory
+from orb_agent.tools.backtest import run_orb_backtest
 from orb_agent.tools.data import fetch_multi_tf_data
 from orb_agent.tools.explain import explain_setup_detalhado
 from orb_agent.tools.orb import detect_orb_setup
@@ -51,9 +53,19 @@ def run_pair_analysis(pair: str) -> dict[str, Any]:
         "confluences": None,
         "trade_params": None,
         "risk_check": None,
+        "backtest": None,
+        "setup_id": None,
         "explanation": None,
         "detection": detection,
     }
+
+    try:
+        result["backtest"] = run_orb_backtest.invoke({
+            "pair": pair,
+            "candle_limit": settings.backtest_candle_limit,
+        })
+    except Exception as exc:
+        result["backtest"] = {"pair": pair, "error": str(exc), "total_trades": 0}
 
     if not detection.get("found"):
         result["explanation"] = f"Analise {pair}: {detection.get('reason', 'sem setup')}"
@@ -93,5 +105,9 @@ def run_pair_analysis(pair: str) -> dict[str, Any]:
     if not risk.get("approved"):
         result["found"] = False
         result["explanation"] = f"Setup {pair} bloqueado por risco: {risk.get('reason')}"
+    else:
+        result["setup_id"] = get_memory().log_setup(
+            pair, setup, trade, result.get("backtest"),
+        )
 
     return result
