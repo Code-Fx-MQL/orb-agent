@@ -2,12 +2,17 @@
 """Scan agendado — analisa pares prioritarios e dispara webhooks."""
 
 from orb_agent.alerts.dispatcher import notify_paper_alerts, notify_scan_complete, notify_setup_found
+from orb_agent.audit.rotation import maybe_rotate_audit_log
 from orb_agent.config.settings import settings
 from orb_agent.paper.alerts import check_paper_alerts
 from orb_agent.tools.analyze import analyze_all_primary_pairs
 
 
 def main() -> int:
+    rotation = maybe_rotate_audit_log()
+    if rotation.get("rotated"):
+        print(f"Audit rotacionado: {rotation.get('archive')}")
+
     result = analyze_all_primary_pairs.invoke({})
     notify_scan_complete(result)
 

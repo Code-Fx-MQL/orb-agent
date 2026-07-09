@@ -63,6 +63,10 @@ def main() -> None:
         "Dockerfile",
         "docker-compose.yml",
         "deploy/easypanel/compose.yml",
+        "src/orb_agent/providers/ohlcv_cache.py",
+        "src/orb_agent/audit/rotation.py",
+        "docs/design-docs/orb-validation-checklist.md",
+        "docs/exec-plans/tech-debt-tracker.md",
     ]
     for rel in required:
         if not (ROOT / rel).exists():

@@ -4,7 +4,7 @@
 
 ## Missão
 
-**Agente Opening Range Breakout** — IA especializada em Opening Range Breakout com Harness Engineering.
+**Agente Opening Range Breakout** — Harness Engineering completo (Fases 0–9).
 
 Blueprint: [trading-harness](https://github.com/Code-Fx-MQL/trading-harness)
 
@@ -12,45 +12,34 @@ Blueprint: [trading-harness](https://github.com/Code-Fx-MQL/trading-harness)
 
 | Tarefa | Arquivo |
 |--------|---------|
-| Plano ativo | `docs/exec-plans/active/fase-8-producao.md` |
-| Deploy produção | `docs/deploy-easypanel-github.md` |
-| Checklist go-live | `docs/design-docs/go-live-checklist.md` |
-| Regras da estratégia | `docs/design-docs/orb-strategy.md` |
-| Spec do agente | `docs/product-specs/agente-orb.md` |
+| Plano ativo | `docs/exec-plans/active/fase-9-operacoes.md` |
+| Validação ORB | `docs/design-docs/orb-validation-checklist.md` |
+| Tech debt | `docs/exec-plans/tech-debt-tracker.md` |
+| Deploy | `docs/deploy-easypanel-github.md` |
 
-## Código
+## Código (Fase 9)
 
 ```
 src/orb_agent/
-├── guardrails/live_gate.py
-├── broker/executor.py
-├── ops/golive.py
-├── alerts/                  # webhooks, telegram, dispatcher
-├── pipeline/analyze.py
-├── ui/app.py + live_ops_panel.py
-└── main.py
+├── providers/ohlcv_cache.py   # Cache disco TTL
+├── audit/rotation.py        # Rotacao audit log
+├── tools/analyze.py         # Scan paralelo
+├── memory/mem0_sync.py      # Mem0 opcional
+└── ...
 ```
 
 ## Comandos
 
 ```powershell
-orb-agent --pair EURUSD
-orb-ui
-docker compose up --build -d
+python scripts/verify-system.py
+python scripts/test-webhook.py
 .\scripts\scheduled-scan.ps1
-.\scripts\register-scheduled-task.ps1 -IntervalMinutes 15
+orb-agent --all --json
 pytest -m "not integration"
 ```
 
-## Deploy
+## Regras
 
-- `Dockerfile` + `docker-compose.yml` — local
-- `deploy/easypanel/` — EasyPanel compose
-- `.github/workflows/deploy.yml` — CI deploy manual
-
-## Regras inegociáveis
-
-- Modo default `analysis`
-- Live bloqueado sem gate duplo
-- Volume `/app/data` obrigatório em produção
-- Scan agendado separado do auto-refresh UI
+- Fases 0–8: blueprint trading-harness
+- Fase 9: hardening pós-MVP (cache, paralelo, rotação)
+- Escala horizontal requer PostgreSQL/Redis (futuro)

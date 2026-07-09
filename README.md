@@ -12,13 +12,10 @@ Agente de IA para **Opening Range Breakout** construído com [Trading Harness](h
 .\scripts\setup.ps1
 Copy-Item .env.example .env
 orb-agent --pair EURUSD
-orb-agent --pair EURUSD --live-token SEU_TOKEN
 orb-agent --all --json
-orb-agent --backtest --pair EURUSD
-orb-agent --backtest --all
-ORB_DATA_SOURCE=ccxt orb-agent --pair XAUUSD
 pip install -e ".[ui]"
 orb-ui
+python scripts\verify-system.py
 pytest
 .\scripts\validate.ps1
 ```
@@ -27,7 +24,6 @@ pytest
 
 ```powershell
 docker compose up --build -d
-# Dashboard: http://localhost:8501
 ```
 
 ## Scan agendado
@@ -41,23 +37,17 @@ docker compose up --build -d
 
 | Doc | Conteúdo |
 |-----|----------|
-| [Regras Opening Range Breakout](docs/design-docs/orb-strategy.md) | Definição da estratégia |
-| [Deploy EasyPanel](docs/deploy-easypanel-github.md) | Docker + CI/CD |
-| [Checklist go-live](docs/design-docs/go-live-checklist.md) | Gate duplo live |
-| [AGENTS.md](AGENTS.md) | Mapa para agentes IA |
+| [Regras ORB](docs/design-docs/orb-strategy.md) | Estratégia |
+| [Checklist validação](docs/design-docs/orb-validation-checklist.md) | Assinatura trader |
+| [Deploy EasyPanel](docs/deploy-easypanel-github.md) | Produção |
+| [Go-live](docs/design-docs/go-live-checklist.md) | Live gate |
+| [Tech debt](docs/exec-plans/tech-debt-tracker.md) | Dívida técnica |
 
 ## Status
 
 | Fase | Status |
 |------|--------|
-| 0 — Fundação | OK |
-| 1 — Definição ORB | OK (`detect_orb_setup`) |
-| 2 — Dados CCXT | OK |
-| 3 — Core + pipeline | OK |
-| 4 — Backtest + memoria | OK (walk-forward) |
-| 5 — UI + paper | OK (Streamlit + paper trading) |
-| 6 — Observabilidade | OK (audit JSONL, LangSmith, alertas) |
-| 7 — Live gate | OK (gate duplo, broker, checklist) |
-| **8 — Produção (fase-8)** | **OK (Docker, Telegram, scan agendado)** |
+| 0–8 | OK (blueprint completo) |
+| **9 — Operações** | **OK (cache, scan paralelo, escala)** |
 
-**Fases 0–8 completas.** Ver [FASES 0–8](https://github.com/Code-Fx-MQL/trading-harness/blob/main/docs/FASES-0-8.md).
+Ver [FASES 0–8](https://github.com/Code-Fx-MQL/trading-harness/blob/main/docs/FASES-0-8.md) + Fase 9 em `docs/exec-plans/active/fase-9-operacoes.md`.

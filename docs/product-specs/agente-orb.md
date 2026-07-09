@@ -1,28 +1,22 @@
 # Spec - Agente Opening Range Breakout
 
-## MVP — Fases 0-8 completas
+## Maturidade: Fases 0-9
 
-- [x] Pipeline ORB top-down (1D → 1H → 15m)
-- [x] CCXT + backtest walk-forward
-- [x] Paper trading + Dashboard Streamlit
-- [x] Audit JSONL + LangSmith + alertas n8n
-- [x] Live gate duplo + broker stub/ccxt
-- [x] Checklist go-live + Live Ops
-- [x] Docker + EasyPanel deploy
-- [x] Telegram alertas
-- [x] Scan agendado (Windows Task Scheduler)
+- [x] Fases 0-8 — paridade blueprint trading-harness
+- [x] Fase 9 — cache OHLCV, scan paralelo, rotacao audit, Mem0 opcional
 
-## Fase 8 — Produção
+## Fase 9 — Operacoes e escala
 
 | Componente | Ficheiro |
 |------------|----------|
-| Docker | `Dockerfile`, `docker-compose.yml` |
-| EasyPanel | `deploy/easypanel/compose.yml` |
-| Telegram | `alerts/telegram_messages.py` |
-| Scan agendado | `scripts/scheduled_scan.py` |
-| CI deploy | `.github/workflows/deploy.yml` |
-| Guia deploy | `docs/deploy-easypanel-github.md` |
+| Cache OHLCV | `providers/ohlcv_cache.py` |
+| Scan paralelo | `tools/analyze.py` (`ORB_SCAN_WORKERS`) |
+| Rotacao audit | `audit/rotation.py` |
+| Mem0 cloud | `memory/mem0_sync.py` |
+| Health check | `scripts/verify-system.py` |
 
-## Maturidade
+## Futuro
 
-Paridade com blueprint [trading-harness Fases 0-8](https://github.com/Code-Fx-MQL/trading-harness/blob/main/docs/FASES-0-8.md).
+- Estado distribuido (PostgreSQL/Redis)
+- Fila de jobs para scans
+- Replicas horizontais

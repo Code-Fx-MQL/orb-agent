@@ -50,7 +50,21 @@ class TradeMemory:
         }
         self._data["entries"].append(entry)
         self._save()
+        mem0 = self._sync_mem0(entry)
+        if mem0:
+            entry["mem0_sync"] = mem0
         return setup_id
+
+    def _sync_mem0(self, entry: dict[str, Any]) -> dict[str, Any] | None:
+        try:
+            from orb_agent.memory.mem0_sync import get_mem0_sync
+
+            client = get_mem0_sync()
+            if client:
+                return client.sync_setup(entry)
+        except Exception:
+            return None
+        return None
 
     def log_outcome(self, setup_id: str, outcome: str, pnl_percent: float) -> dict[str, Any] | None:
         for e in self._data["entries"]:

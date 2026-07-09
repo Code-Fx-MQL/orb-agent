@@ -47,6 +47,13 @@ class Settings(BaseSettings):
     telegram_chat_id: str = ""
     ui_auto_refresh_enabled: bool = True
     ui_auto_refresh_seconds: int = 300
+    cache_enabled: bool = True
+    cache_ttl_seconds: int = 600
+    scan_workers: int = 4
+    audit_max_mb: float = 50.0
+    mem0_enabled: bool = False
+    mem0_api_key: str = ""
+    mem0_user_id: str = "orb-agent"
 
     @property
     def pairs_list(self) -> list[str]:

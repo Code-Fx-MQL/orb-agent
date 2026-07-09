@@ -9,6 +9,7 @@ import ccxt
 import structlog
 
 from orb_agent.config.settings import settings
+from orb_agent.providers.ohlcv_cache import get_cached, set_cached
 from orb_agent.providers.symbols import PairMarket, normalize_timeframe, resolve_pair_market
 
 logger = structlog.get_logger(__name__)
@@ -163,12 +164,23 @@ def fetch_multi_tf(
     if market.note:
         result["note"] = market.note
 
+    cache_hits = 0
+    lim = limit or settings.ccxt_ohlcv_limit
     for tf in timeframes:
-        candles, _ = fetch_ohlcv(pair, tf, limit=limit)
         norm_tf = normalize_timeframe(tf)
+        cached = get_cached(pair, norm_tf, lim)
+        if cached is not None:
+            result["timeframes"][norm_tf] = cached
+            result["candle_counts"][norm_tf] = len(cached)
+            cache_hits += 1
+            continue
+        candles, _ = fetch_ohlcv(pair, tf, limit=limit)
+        set_cached(pair, norm_tf, lim, candles)
         result["timeframes"][norm_tf] = candles
         result["candle_counts"][norm_tf] = len(candles)
         if limit and limit > _CCXT_BATCH_SIZE:
             time.sleep(3)
 
+    if cache_hits:
+        result["cache_hits"] = cache_hits
     return result
