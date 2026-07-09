@@ -11,7 +11,9 @@ Agente de IA para **Opening Range Breakout** construído com [Trading Harness](h
 ```powershell
 .\scripts\setup.ps1
 Copy-Item .env.example .env
-orb-agent --pair XAUUSD
+orb-agent --pair EURUSD
+orb-agent --all --json
+ORB_DATA_SOURCE=ccxt orb-agent --pair XAUUSD
 pytest
 .\scripts\validate.ps1
 ```
@@ -21,7 +23,7 @@ pytest
 | Doc | Conteúdo |
 |-----|----------|
 | [Regras Opening Range Breakout](docs/design-docs/orb-strategy.md) | Definição da estratégia |
-| [Plano ativo](docs/exec-plans/active/fase-1-definicao.md) | Roadmap atual |
+| [Plano ativo](docs/exec-plans/active/fase-2-dados.md) | Roadmap atual |
 | [AGENTS.md](AGENTS.md) | Mapa para agentes IA |
 
 ## Status
@@ -29,7 +31,8 @@ pytest
 | Fase | Status |
 |------|--------|
 | 0 — Fundação | OK |
-| **1 — Definição ORB** | **`detect_orb_setup` implementado** |
-| 2 — Dados CCXT | Pendente |
+| 1 — Definição ORB | OK (`detect_orb_setup`) |
+| **2 — Dados CCXT** | **OK (stub/ccxt/auto)** |
+| 3 — Core + pipeline | Pendente |
 
 Ver [FASES 0–8](https://github.com/Code-Fx-MQL/trading-harness/blob/main/docs/FASES-0-8.md).

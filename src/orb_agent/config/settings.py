@@ -26,5 +26,13 @@ class Settings(BaseSettings):
     live_approval_token: str = ""
     memory_dir: str = "data/memory"
     webhook_enabled: bool = False
+    ccxt_ohlcv_limit: int = 100
+    ccxt_timeout_ms: int = 30000
+    ccxt_api_key: str = ""
+    ccxt_api_secret: str = ""
+
+    @property
+    def pairs_list(self) -> list[str]:
+        return [p.strip().upper() for p in self.pairs.split(",") if p.strip()]
 
 settings = Settings()

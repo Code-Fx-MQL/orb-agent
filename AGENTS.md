@@ -12,7 +12,7 @@ Blueprint: [trading-harness](https://github.com/Code-Fx-MQL/trading-harness)
 
 | Tarefa | Arquivo |
 |--------|---------|
-| Plano ativo | `docs/exec-plans/active/fase-1-definicao.md` |
+| Plano ativo | `docs/exec-plans/active/fase-2-dados.md` |
 | Regras da estratégia | `docs/design-docs/orb-strategy.md` |
 | Spec do agente | `docs/product-specs/agente-orb.md` |
 | Arquitetura | `ARCHITECTURE.md` |
@@ -21,11 +21,12 @@ Blueprint: [trading-harness](https://github.com/Code-Fx-MQL/trading-harness)
 
 ```
 src/orb_agent/
-├── pipeline/analyze.py    # Orquestração determinística
-├── tools/orb.py  # detect_orb_setup
+├── providers/             # CCXT + symbols
+├── pipeline/analyze.py
+├── tools/data.py          # fetch_multi_tf_data
+├── tools/orb.py           # detect_orb_setup
 ├── config/orb_rules.py
-├── guardrails/            # Risco, live gate
-└── main.py                # CLI
+└── main.py
 ```
 
 ## Comandos
@@ -33,8 +34,10 @@ src/orb_agent/
 ```powershell
 .\scripts\setup.ps1
 .\scripts\validate.ps1
-orb-agent --pair XAUUSD
-pytest
+orb-agent --pair EURUSD
+orb-agent --all --json
+ORB_DATA_SOURCE=ccxt orb-agent --pair XAUUSD
+pytest -m "not integration"
 ```
 
 ## Regras inegociáveis

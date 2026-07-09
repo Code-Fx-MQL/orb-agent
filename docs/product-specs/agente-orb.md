@@ -6,4 +6,5 @@
 - [x] detect_orb_setup (1D bias -> 1H OR -> 15m breakout/retest)
 - [x] Testes unitarios e tool
 - [x] Modo analysis default
-- [ ] Dados CCXT reais (Fase 2)
+- [x] Dados CCXT (stub/ccxt/auto) + pairs registry
+- [ ] Pipeline completo com trade params (Fase 3)
