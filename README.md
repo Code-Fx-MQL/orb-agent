@@ -21,9 +21,15 @@ pytest
 | Doc | Conteúdo |
 |-----|----------|
 | [Regras Opening Range Breakout](docs/design-docs/orb-strategy.md) | Definição da estratégia |
-| [Plano ativo](docs/exec-plans/active/fase-0-fundacao.md) | Roadmap atual |
+| [Plano ativo](docs/exec-plans/active/fase-1-definicao.md) | Roadmap atual |
 | [AGENTS.md](AGENTS.md) | Mapa para agentes IA |
 
 ## Status
 
-Fase 0 — Fundação (scaffold). Ver [FASES 0–8](https://github.com/Code-Fx-MQL/trading-harness/blob/main/docs/FASES-0-8.md).
+| Fase | Status |
+|------|--------|
+| 0 — Fundação | OK |
+| **1 — Definição ORB** | **`detect_orb_setup` implementado** |
+| 2 — Dados CCXT | Pendente |
+
+Ver [FASES 0–8](https://github.com/Code-Fx-MQL/trading-harness/blob/main/docs/FASES-0-8.md).

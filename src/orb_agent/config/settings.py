@@ -12,9 +12,12 @@ class Settings(BaseSettings):
     mode: OperationMode = OperationMode.ANALYSIS
     pairs: str = "XAUUSD,EURUSD"
     data_source: str = "stub"
-    default_htf: str = "4h"
+    default_htf: str = "1d"
     default_mtf: str = "1h"
     default_ltf: str = "15m"
+    orb_session_candles: int = 1
+    orb_breakout_mode: str = "retest"
+    orb_require_retest: bool = True
     max_risk_per_trade: float = 0.01
     max_daily_risk: float = 0.03
     max_weekly_risk: float = 0.06

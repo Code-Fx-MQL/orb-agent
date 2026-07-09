@@ -1,42 +1,63 @@
 # Opening Range Breakout (ORB) - Regras da estrategia
 
-> Scaffold de exemplo gerado por [trading-harness](https://github.com/Code-Fx-MQL/trading-harness).
+> Implementacao Fase 1 em `src/orb_agent/tools/orb.py`.
 
 ## Glossario
 
 | Termo | Definicao |
 |-------|-----------|
-| Opening Range (OR) | High/low da primeira hora (ou N minutos) da sessao |
-| Breakout | Fecho LTF fora do range OR |
-| Reteste | Pullback ao boundary do OR antes da entrada |
-| Killzone | London open (08:00 UTC) ou NY open (13:30 UTC) |
+| Opening Range (OR) | High/low da primeira hora da sessao (1 vela 1H por defeito) |
+| Breakout | Fecho LTF fora do OR |
+| Reteste | Pullback ao boundary do OR com fecho a favor |
+| Bias HTF | Direcao do dia no timeframe diario |
 
-## Algoritmo top-down
+## Algoritmo top-down (implementado)
 
 ```
-1D  -> bias direcional (tendencia do dia)
-1H  -> define Opening Range da sessao ativa
-15m -> breakout + reteste para entrada
+1D  -> bias: fecho > abertura E fecho > fecho anterior (bullish)
+1H  -> OR = high/low da(s) primeira(s) vela(s) de sessao (ORB_SESSION_CANDLES)
+15m -> breakout do OR + reteste (modo retest) ou entrada imediata (immediate)
 ```
 
-## Parametros e defaults
+### Parametros (`config/orb_rules.py`)
 
-| Parametro | Default | Modulo |
-|-----------|---------|--------|
-| `ORB_SESSION_MINUTES` | 60 | `config/orb_rules.py` |
-| Sessao London | 08:00-09:00 UTC | settings / rules |
-| SL | Extremo oposto do OR | `tools/trade.py` |
-| TP | 1R ou fecho em resistencia HTF | `tools/trade.py` |
+| Parametro | Default | Descricao |
+|-----------|---------|-----------|
+| `ORB_SESSION_CANDLES` | 1 | Velas MTF do opening range |
+| `MIN_OR_RANGE_FOREX` | 0.0008 | Range minimo (~8 pips) |
+| `MIN_OR_RANGE_GOLD` | 2.0 | Range minimo XAUUSD |
+| `RETEST_TOLERANCE_RATIO` | 0.25 | Zona de reteste (% do OR) |
+| `REQUIRE_RETEST` | true | Exigir reteste antes da entrada |
+| `MIN_RISK_REWARD` | 1.0 | TP = 1R por defeito |
+| `LTF_LOOKBACK` | 16 | Velas LTF analisadas |
 
-## Mapeamento harness
+### Trade params (detector)
 
-| Conceito ORB | Modulo harness |
-|--------------|----------------|
-| Range da primeira hora | `detect_orb_setup` (HTF/MTF) |
-| False breakout | `reason` no detector |
-| Confirma tendencia diaria | `analysis/confluences.py` |
-| Reteste boundary | trigger LTF em `detect_orb_setup` |
-| Killzone | filtro em pipeline |
+| Direcao | Entry | SL | TP |
+|---------|-------|----|----|
+| Bullish | Fecho LTF no reteste/breakout | `or_low` | entry + 1R |
+| Bearish | Fecho LTF no reteste/breakout | `or_high` | entry - 1R |
+
+## Contrato `detect_orb_setup`
+
+Output quando `found=True`:
+
+```python
+{
+  "found": True,
+  "pair": "EURUSD",
+  "setup": {
+    "direction": "bullish" | "bearish",
+    "or_high": float,
+    "or_low": float,
+    "entry": float,
+    "stop_loss": float,
+    "take_profit": float,
+    "confidence": float,
+    "metadata": {"pattern": "breakout_retest", ...}
+  }
+}
+```
 
 ## KPIs alvo
 
