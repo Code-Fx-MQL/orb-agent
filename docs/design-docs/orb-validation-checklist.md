@@ -46,7 +46,7 @@ Execucao: `orb-agent --backtest --all` com `ORB_BACKTEST_CANDLE_LIMIT=2000`.
 | Fase | Status |
 |------|--------|
 | Paper trading | **Em curso** desde 2026-07-09 (meta: 14 dias) |
-| Live | **Bloqueado** — item 9 (core KPI), paper 14d, webhooks |
+| Live | **Bloqueado** — item 9 (core KPI) + paper 14d |
 
 ## Assinaturas
 
