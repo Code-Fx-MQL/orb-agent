@@ -48,6 +48,7 @@ Testar:
 ```powershell
 python scripts\test-webhook.py
 python scripts\test-setup-found.py
+python scripts\test-paper-alert.py
 ```
 
 Resposta esperada do n8n (`test_ping`):
