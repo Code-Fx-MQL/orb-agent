@@ -40,6 +40,7 @@ docker compose up --build -d
 | [Regras ORB](docs/design-docs/orb-strategy.md) | Estratégia |
 | [Checklist validação](docs/design-docs/orb-validation-checklist.md) | Assinatura trader |
 | [Deploy EasyPanel](docs/deploy-easypanel-github.md) | Produção |
+| [Workflow n8n](docs/deploy-n8n.md) | IA review + Telegram |
 | [Go-live](docs/design-docs/go-live-checklist.md) | Live gate |
 | [Tech debt](docs/exec-plans/tech-debt-tracker.md) | Dívida técnica |
 

@@ -1,0 +1,695 @@
+{
+  "name": "ORB Agent — IA Review (setup_found)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## ORB Agent + IA + Telegram\n\n1. Webhook `orb-globalsend` recebe POST do harness\n2. Filtra `app=orb-agent`\n3. `setup_found` → OpenAI revisa contexto ORB\n4. Telegram alerta (approve/reject/review)\n5. `paper_alert` → Telegram SL/TP paper\n6. Resposta JSON ao harness\n\n**Após importar:**\n- Credencial **OpenAI** no nó OpenAI Review\n- Credencial **Telegram** nos nós Telegram\n- Chat ID em cada nó Telegram\n- Atualizar `.env`: `ORB_WEBHOOK_URL=https://8.fullscopetrade.com/webhook/orb-globalsend`\n- Testar: `python scripts/test-webhook.py`\n- **Ativar** workflow\n\nVer `docs/deploy-n8n.md`",
+        "height": 400,
+        "width": 460
+      },
+      "id": "b2000000-0000-4000-8000-000000000001",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-320, -120]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "orb-globalsend",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b2000000-0000-4000-8000-000000000002",
+      "name": "Webhook ORB Globalsend",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "webhookId": "orb-agent-globalsend"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-app",
+              "leftValue": "={{ $json.app }}",
+              "rightValue": "orb-agent",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b2000000-0000-4000-8000-000000000003",
+      "name": "Filter orb-agent",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "setup_found",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "setup_found"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "test_ping",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "test_ping"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "scan_complete",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "scan_complete"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type }}",
+                    "rightValue": "paper_alert",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "paper_alert"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "b2000000-0000-4000-8000-000000000004",
+      "name": "Switch event_type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [480, 280]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "pair",
+              "name": "pair",
+              "value": "={{ $json.data.pair }}",
+              "type": "string"
+            },
+            {
+              "id": "setup_id",
+              "name": "setup_id",
+              "value": "={{ $json.data.setup_id }}",
+              "type": "string"
+            },
+            {
+              "id": "ai_system_prompt",
+              "name": "ai_system_prompt",
+              "value": "És um revisor de setups ORB (Opening Range Breakout) para Forex e XAUUSD. O harness já validou top-down 1D→1H→15m, opening range, breakout+retest e guardrails de risco. A tua função é validar CONTEXTO operacional — qualidade do OR, alinhamento do bias diário, timing de sessão e se o trade faz sentido agora. Não redetectes padrões. Responde APENAS JSON válido com: decision (approve|reject|review), confidence (0-1), risks (array de strings), reasoning (string curta em português).",
+              "type": "string"
+            },
+            {
+              "id": "ai_user_prompt",
+              "name": "ai_user_prompt",
+              "value": "=Revisa este setup ORB:\n\nPar: {{ $json.data.pair }}\nSetup ID: {{ $json.data.setup_id }}\nDireção: {{ $json.data.direction }}\nConfiança harness: {{ $json.data.confidence }}\nEntry/SL/TP: {{ $json.data.entry }} / {{ $json.data.stop_loss }} / {{ $json.data.take_profit }}\nR:R: {{ $json.data.risk_reward }}\nFonte: {{ $json.data.data_source }} ({{ $json.data.exchange }})\nModo: {{ $json.mode }}\n\nOpening Range: {{ $json.data.setup.or_low }} — {{ $json.data.setup.or_high }}\nBreakout: {{ $json.data.setup.breakout_mode }} · Reteste: {{ $json.data.setup.retest_confirmed }}\nConfluências: {{ JSON.stringify($json.data.confluences) }}\nBacktest par: {{ JSON.stringify($json.data.backtest) }}\nRisco: {{ JSON.stringify($json.data.risk_check) }}\nSetup: {{ JSON.stringify($json.data.setup) }}\n\nExplicação harness:\n{{ $json.data.explanation_full || $json.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b2000000-0000-4000-8000-000000000005",
+      "name": "Build AI Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [760, 40]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.ai_system_prompt }}",
+              "role": "system"
+            },
+            {
+              "content": "={{ $json.ai_user_prompt }}",
+              "role": "user"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "b2000000-0000-4000-8000-000000000006",
+      "name": "OpenAI Review",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [1000, 40],
+      "credentials": {
+        "openAiApi": {
+          "id": "CONFIGURE_OPENAI_CREDENTIAL",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const src = $('Build AI Prompt').first().json;\nconst ai = $input.first().json;\n\nlet parsed = {};\ntry {\n  if (ai.message && ai.message.content) {\n    parsed = typeof ai.message.content === 'string' ? JSON.parse(ai.message.content) : ai.message.content;\n  } else if (ai.output) {\n    parsed = typeof ai.output === 'string' ? JSON.parse(ai.output) : ai.output;\n  } else {\n    parsed = ai;\n  }\n} catch (e) {\n  parsed = { decision: 'review', confidence: 0, risks: ['parse_error'], reasoning: String(e.message) };\n}\n\nconst decision = ['approve','reject','review'].includes(parsed.decision) ? parsed.decision : 'review';\n\nreturn [{\n  json: {\n    ok: true,\n    app: 'orb-agent',\n    event_type: 'setup_found',\n    pair: src.pair,\n    setup_id: src.setup_id,\n    decision,\n    confidence: parsed.confidence ?? 0,\n    risks: parsed.risks ?? [],\n    reasoning: parsed.reasoning ?? '',\n    ai_raw: parsed\n  }\n}];"
+      },
+      "id": "b2000000-0000-4000-8000-000000000007",
+      "name": "Parse AI Decision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1240, 40]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.decision }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "approve"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.decision }}",
+                    "rightValue": "reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "reject"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "b2000000-0000-4000-8000-000000000008",
+      "name": "Switch decision",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [1480, 40]
+    },
+    {
+      "parameters": {
+        "operation": "sendMessage",
+        "chatId": "CONFIGURE_TELEGRAM_CHAT_ID",
+        "text": "=✅ *ORB Agent — Setup APROVADO*\n\n*Par:* {{ $json.pair }}\n*Setup ID:* {{ $json.setup_id }}\n*Confiança IA:* {{ Math.round(($json.confidence || 0) * 100) }}%\n\n*Motivo:* {{ $json.reasoning }}\n\n*Trade:* E {{ $('Webhook ORB Globalsend').item.json.data.entry }} · SL {{ $('Webhook ORB Globalsend').item.json.data.stop_loss }} · TP {{ $('Webhook ORB Globalsend').item.json.data.take_profit }}\n*R:R:* {{ $('Webhook ORB Globalsend').item.json.data.risk_reward }}\n*OR:* {{ $('Webhook ORB Globalsend').item.json.data.setup.or_low }} — {{ $('Webhook ORB Globalsend').item.json.data.setup.or_high }}\n*Backtest KPI:* {{ $('Webhook ORB Globalsend').item.json.data.backtest.meets_kpi ? 'sim' : 'não' }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "b2000000-0000-4000-8000-000000000009",
+      "name": "Telegram Approve",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1760, -80],
+      "credentials": {
+        "telegramApi": {
+          "id": "CONFIGURE_TELEGRAM_CREDENTIAL",
+          "name": "Telegram ORB Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, handled: 'setup_found', decision: $('Parse AI Decision').item.json.decision, pair: $('Parse AI Decision').item.json.pair, setup_id: $('Parse AI Decision').item.json.setup_id, confidence: $('Parse AI Decision').item.json.confidence, reasoning: $('Parse AI Decision').item.json.reasoning, telegram_sent: true, message: 'Setup ORB aprovado pela IA' } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "b2000000-0000-4000-8000-00000000000a",
+      "name": "Respond Approve",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2000, -80]
+    },
+    {
+      "parameters": {
+        "operation": "sendMessage",
+        "chatId": "CONFIGURE_TELEGRAM_CHAT_ID",
+        "text": "=❌ *ORB Agent — Setup REJEITADO*\n\n*Par:* {{ $json.pair }}\n*Setup ID:* {{ $json.setup_id }}\n*Confiança IA:* {{ Math.round(($json.confidence || 0) * 100) }}%\n\n*Motivo:* {{ $json.reasoning }}\n\n*Riscos:* {{ ($json.risks || []).join(', ') || 'n/a' }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "b2000000-0000-4000-8000-00000000000b",
+      "name": "Telegram Reject",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1760, 40],
+      "credentials": {
+        "telegramApi": {
+          "id": "CONFIGURE_TELEGRAM_CREDENTIAL",
+          "name": "Telegram ORB Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, handled: 'setup_found', decision: $('Parse AI Decision').item.json.decision, pair: $('Parse AI Decision').item.json.pair, setup_id: $('Parse AI Decision').item.json.setup_id, confidence: $('Parse AI Decision').item.json.confidence, reasoning: $('Parse AI Decision').item.json.reasoning, telegram_sent: true, message: 'Setup ORB rejeitado pela IA' } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "b2000000-0000-4000-8000-00000000000c",
+      "name": "Respond Reject",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2000, 40]
+    },
+    {
+      "parameters": {
+        "operation": "sendMessage",
+        "chatId": "CONFIGURE_TELEGRAM_CHAT_ID",
+        "text": "=⚠️ *ORB Agent — Revisão HUMANA*\n\n*Par:* {{ $json.pair }}\n*Setup ID:* {{ $json.setup_id }}\n*Confiança IA:* {{ Math.round(($json.confidence || 0) * 100) }}%\n\n*Motivo:* {{ $json.reasoning }}\n\n*Riscos:* {{ ($json.risks || []).join(', ') || 'n/a' }}\n\n_Validar manualmente antes de paper/live._",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "b2000000-0000-4000-8000-00000000000d",
+      "name": "Telegram Review",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1760, 160],
+      "credentials": {
+        "telegramApi": {
+          "id": "CONFIGURE_TELEGRAM_CREDENTIAL",
+          "name": "Telegram ORB Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, handled: 'setup_found', decision: $('Parse AI Decision').item.json.decision, pair: $('Parse AI Decision').item.json.pair, setup_id: $('Parse AI Decision').item.json.setup_id, confidence: $('Parse AI Decision').item.json.confidence, reasoning: $('Parse AI Decision').item.json.reasoning, telegram_sent: true, message: 'Revisão humana recomendada' } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "b2000000-0000-4000-8000-00000000000e",
+      "name": "Respond Review",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2000, 160]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, handled: 'test_ping', app: $json.app, event_type: $json.event_type, message: 'ORB Agent webhook OK' } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "b2000000-0000-4000-8000-00000000000f",
+      "name": "Respond Test Ping",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [760, 280]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, handled: 'scan_complete', setups_found: $json.data.setups_found, summary: $json.body } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "b2000000-0000-4000-8000-000000000010",
+      "name": "Respond Scan",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [760, 400]
+    },
+    {
+      "parameters": {
+        "operation": "sendMessage",
+        "chatId": "CONFIGURE_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.data.type === 'tp_hit' ? '🎯' : '🛑' }} *ORB Paper {{ $json.data.pair }}*\n\n{{ $json.data.message || $json.body }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "b2000000-0000-4000-8000-000000000011",
+      "name": "Telegram Paper Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [760, 520],
+      "credentials": {
+        "telegramApi": {
+          "id": "CONFIGURE_TELEGRAM_CREDENTIAL",
+          "name": "Telegram ORB Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, handled: 'paper_alert', pair: $json.data.pair, type: $json.data.type, message: $json.data.message } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "b2000000-0000-4000-8000-000000000012",
+      "name": "Respond Paper Alert",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1000, 520]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, handled: 'ignored', event_type: $json.event_type, message: 'Evento orb-agent sem handler dedicado' } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "b2000000-0000-4000-8000-000000000013",
+      "name": "Respond Other Event",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [760, 640]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: false, message: 'Not orb-agent payload' } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "b2000000-0000-4000-8000-000000000014",
+      "name": "Respond Not ORB",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [480, 520]
+    }
+  ],
+  "connections": {
+    "Webhook ORB Globalsend": {
+      "main": [
+        [
+          {
+            "node": "Filter orb-agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter orb-agent": {
+      "main": [
+        [
+          {
+            "node": "Switch event_type",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Not ORB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch event_type": {
+      "main": [
+        [
+          {
+            "node": "Build AI Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Test Ping",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Scan",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram Paper Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Other Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AI Prompt": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Review": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Decision": {
+      "main": [
+        [
+          {
+            "node": "Switch decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch decision": {
+      "main": [
+        [
+          {
+            "node": "Telegram Approve",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram Reject",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Approve": {
+      "main": [
+        [
+          {
+            "node": "Respond Approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Reject": {
+      "main": [
+        [
+          {
+            "node": "Respond Reject",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Review": {
+      "main": [
+        [
+          {
+            "node": "Respond Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Paper Alert": {
+      "main": [
+        [
+          {
+            "node": "Respond Paper Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "versionId": "orb-agent-ai-review-v1"
+}
